@@ -1,5 +1,20 @@
 package oauth2s
 
+import (
+	"net/http"
+
+	"github.com/webx-top/echo"
+	"gopkg.in/oauth2.v4/errors"
+	"github.com/llaoj/oauth2/utils/log"
+)
+
+type HandlerInfo struct{
+	PasswordAuthorization func(username, password string) (userID string, err error)
+	UserAuthorize func(w http.ResponseWriter, r *http.Request) (userID string, err error)
+	InternalError func (error) (*errors.Response)
+	ResponseError func (*errors.Response)
+}
+
 var (
 	PasswordAuthorizationHandler = func(username, password string) (userID string, err error) {
     	var user model.User
@@ -43,3 +58,10 @@ var (
     	log.App.Error("Response Error:", re.Error.Error())
 	}
 )
+
+func Route(router echo.IRouter) {
+	router.Route(`GET,POST`,`/authorize`, authorizeHandler)
+	router.Route(`GET,POST`,`/login`, loginHandler)
+	router.Route(`GET,POST`,`/logout`, logoutHandler)
+	router.Route(`GET,POST`,`/token`, tokenHandler)
+}

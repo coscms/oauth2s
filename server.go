@@ -1,19 +1,30 @@
 package oauth2s
 
 import (
-	"gopkg.in/oauth2.v4/errors"
-"gopkg.in/oauth2.v4/manage"
-"gopkg.in/oauth2.v4/models"
-"gopkg.in/oauth2.v4/server"
-"gopkg.in/oauth2.v4/store"
+    "gopkg.in/oauth2.v4/server"
 )
 
-func NewServer(manager *manage.Manager) (*server.Server, error) {
-    // config oauth2 server
-    srv := server.NewServer(server.NewConfig(), manager)
-    srv.SetPasswordAuthorizationHandler(PasswordAuthorizationHandler)
-    srv.SetUserAuthorizationHandler(UserAuthorizeHandler)
-    srv.SetInternalErrorHandler(InternalErrorHandler)
+func NewServer(config *Config) (*server.Server, error) {
+    srv := server.NewServer(server.NewConfig(),config.Manager())
+    passwordAuthorization := config.HandlerInfo.PasswordAuthorization
+    if passwordAuthorization == nil {
+        passwordAuthorization = PasswordAuthorizationHandler
+    }
+    srv.SetPasswordAuthorizationHandler(passwordAuthorization)
+    userAuthorize := config.HandlerInfo.UserAuthorize
+    if userAuthorize == nil {
+        userAuthorize = UserAuthorizeHandler
+    }
+    srv.SetUserAuthorizationHandler(userAuthorize)
+    internalError := config.HandlerInfo.InternalError
+    if internalError == nil {
+        internalError = InternalErrorHandler
+    }
+    srv.SetInternalErrorHandler(internalError)
+    responseError := config.HandlerInfo.ResponseError
+    if responseError == nil {
+        responseError = ResponseErrorHandler
+    }
     srv.SetResponseErrorHandler(ResponseErrorHandler)
     return srv, nil
 }
