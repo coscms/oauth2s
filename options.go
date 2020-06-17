@@ -9,19 +9,19 @@ import (
 
 func NewConfig() *Config {
 	return &Config{
-		JWTMethod:jwt.SigningMethodHS512,
+		JWTMethod:   jwt.SigningMethodHS512,
 		HandlerInfo: &HandlerInfo{},
 	}
 }
 
-type Config struct{
-	JWTKey []byte
-	JWTMethod jwt.SigningMethod
-	Store oauth2.TokenStore
+type Config struct {
+	JWTKey      []byte
+	JWTMethod   jwt.SigningMethod
+	Store       oauth2.TokenStore
 	ClientStore oauth2.ClientStore
 	HandlerInfo *HandlerInfo
-	manager *manage.Manager
-	server *server.Server
+	manager     *manage.Manager
+	server      *server.Server
 }
 
 func (c *Config) InitConfig(options ...OptionsSetter) *Config {
