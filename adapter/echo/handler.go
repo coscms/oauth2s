@@ -1,8 +1,10 @@
 package echo
 
 import (
+    "encoding/json"
 	"net/http"
-	"net/url"
+    "net/url"
+    "time"
 
     handlerIndex "github.com/admpub/webx/application/handler/frontend/index"
     modelOpen "github.com/admpub/webx/application/model/official/open"
@@ -10,7 +12,7 @@ import (
 	"github.com/webx-top/echo"
 )
 
-func Route(router echo.IRouter) {
+func Route(router echo.RouteRegister) {
     g := router.Group(`/oauth2`)
 	g.Route(`GET,POST`,`/authorize`, authorizeHandler)
 	g.Route(`GET,POST`,`/login`, loginHandler)
@@ -47,9 +49,10 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
     }
     form := url.Values(formData)
     clientID := form.Get("client_id")
+    var err error
     if len(clientID) > 0 {
         openM := modelOpen.NewOpenApp(ctx)
-        err := openM.GetAndVerifySecret(clientID, secret)
+        err = openM.GetAndVerifySecret(clientID, secret)
         if err != nil {
             http.Error(w, err.Error(), http.StatusBadRequest)
             return
@@ -58,7 +61,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
     }
 
 	ctx.Request().Form().Set(`return_to`, `/oauth2/authorize`)
-	err := handlerIndex.SignIn(ctx)
+	err = handlerIndex.SignIn(ctx)
 	if err != nil {
         http.Error(w, err.Error(), http.StatusBadRequest)
         return
@@ -70,7 +73,7 @@ PASSED:
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context().(echo.Context)
-	err := frontend.SignOut(ctx)
+	err := handlerIndex.SignOut(ctx)
 	if err != nil {
         http.Error(w, err.Error(), http.StatusBadRequest)
 	}

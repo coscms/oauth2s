@@ -1,14 +1,14 @@
-package echoauth
+package main
 
 import (
 	"github.com/coscms/oauth2s"
 	adapter "github.com/coscms/oauth2s/adapter/echo"
 	"github.com/dgrijalva/jwt-go"
-	"gopkg.in/oauth2.v4/store"
-	"gopkg.in/oauth2.v4/models"
 	"github.com/webx-top/echo/defaults"
-	"github.com/webx-top/echo/engine/standard"
 	"github.com/webx-top/echo/engine"
+	"github.com/webx-top/echo/engine/standard"
+	"gopkg.in/oauth2.v4/models"
+	"gopkg.in/oauth2.v4/store"
 )
 
 func init() {
@@ -28,9 +28,8 @@ func init() {
 func main() {
 	adapter.Route(defaults.Default)
 	c := &engine.Config{
-		Address:     ":9094",
-		TLSAuto:     false,
+		Address: ":9094",
+		TLSAuto: false,
 	}
-	eng := standard.New()
 	defaults.Default.Run(standard.NewWithConfig(c))
 }

@@ -7,9 +7,9 @@ import (
 	"github.com/webx-top/echo"
 	"github.com/webx-top/echo/defaults"
 	"github.com/coscms/oauth2s"
-    modelOpen "github.com/admpub/webx/application/model/official/open"
 	modelCustomer "github.com/admpub/webx/application/model/official/customer"
 	"github.com/admpub/webx/application/dbschema"
+	"gopkg.in/oauth2.v4/errors"
 )
 
 var loginVerifyings = map[string]func(ctx echo.Context)(userID string, err error){
@@ -58,8 +58,8 @@ func ResponseErrorHandler(re *errors.Response) {
 }
 
 func init() {
-	oauth2.PasswordAuthorizationHandler = PasswordAuthorizationHandler
-	oauth2.UserAuthorizeHandler = UserAuthorizeHandler
-	oauth2.InternalErrorHandler = InternalErrorHandler
-	oauth2.ResponseErrorHandler = ResponseErrorHandler
+	oauth2s.PasswordAuthorizationHandler = PasswordAuthorizationHandler
+	oauth2s.UserAuthorizeHandler = UserAuthorizeHandler
+	oauth2s.InternalErrorHandler = InternalErrorHandler
+	oauth2s.ResponseErrorHandler = ResponseErrorHandler
 }

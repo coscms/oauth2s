@@ -1,4 +1,4 @@
-package oauth2s
+package redis
 
 import (
 	"time"
