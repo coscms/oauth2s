@@ -1,9 +1,9 @@
 package redis
 
 import (
+	"github.com/go-oauth2/oauth2/v4"
 	"github.com/go-redis/redis"
-	oredis "gopkg.in/go-oauth2/redis.v4"
-	"gopkg.in/oauth2.v4"
+	oredis "github.com/go-oauth2/redis/v4"
 )
 
 func New(redisOptions ...RedisOptionsSetter) oauth2.TokenStore {

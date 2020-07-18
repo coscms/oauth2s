@@ -2,9 +2,9 @@ package oauth2s
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"gopkg.in/oauth2.v4"
-	"gopkg.in/oauth2.v4/manage"
-	"gopkg.in/oauth2.v4/server"
+	"github.com/go-oauth2/oauth2/v4"
+	"github.com/go-oauth2/oauth2/v4/manage"
+	"github.com/go-oauth2/oauth2/v4/server"
 )
 
 func NewConfig() *Config {

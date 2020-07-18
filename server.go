@@ -1,7 +1,7 @@
 package oauth2s
 
 import (
-    "gopkg.in/oauth2.v4/server"
+    "github.com/go-oauth2/oauth2/v4/server"
 )
 
 func NewServer(config *Config) (*server.Server, error) {
