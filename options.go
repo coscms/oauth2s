@@ -53,6 +53,12 @@ func (c *Config) Server() *server.Server {
 
 type OptionsSetter func(*Config)
 
+func JWTKeyID(keyID string) OptionsSetter {
+	return func(c *Config) {
+		c.JWTKeyID = keyID
+	}
+}
+
 func JWTKey(key []byte) OptionsSetter {
 	return func(c *Config) {
 		c.JWTKey = key
