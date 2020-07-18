@@ -15,6 +15,7 @@ func NewConfig() *Config {
 }
 
 type Config struct {
+	JWTKeyID    string
 	JWTKey      []byte
 	JWTMethod   jwt.SigningMethod
 	Store       oauth2.TokenStore

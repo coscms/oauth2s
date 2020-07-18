@@ -13,6 +13,7 @@ require (
 	github.com/go-oauth2/oauth2/v4 v4.1.1
 	github.com/go-oauth2/redis/v4 v4.1.1
 	github.com/go-redis/redis v6.15.8+incompatible
+	github.com/go-redis/redis/v8 v8.0.0-beta.5
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/webx-top/com v0.0.0-20200717115231-63c1a842afd2 // indirect
 	github.com/webx-top/echo v2.1.7+incompatible
