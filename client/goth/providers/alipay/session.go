@@ -27,19 +27,20 @@ func (s Session) GetAuthURL() (string, error) {
 }
 
 // Authorize the session with Github and return the access token to be stored for future use.
+// ?state=state&app_id=hide&source=alipay_wallet&userOutputs=auth_user&scope=auth_user&alipay_token=&auth_code=7b7022f35fff49b896d0251bc763VX39
 func (s *Session) Authorize(provider goth.Provider, params goth.Params) (string, error) {
 	p := provider.(*Provider)
-	values := params.(url.Values)
-	if err := VerifySign(values, []byte(p.Secret)); err != nil {
-		return ``, err
-	}
 	s.AuthCode = params.Get("auth_code")
 	urlParams := url.Values{
 		"grant_type":   {"authorization_code"},
 		"code":         {s.AuthCode},
 		"redirect_uri": oauth2.CondVal(p.CallbackURL),
 	}
-	urlParams = p.urlParams(``, urlParams, nil, `auth_user`)
+	var err error
+	urlParams, err = p.urlParams(``, urlParams, nil, `auth_user`)
+	if err != nil {
+		return ``, err
+	}
 	token, err := p.config.Exchange(goth.ContextForClient(p.Client()), urlParams)
 	if err != nil {
 		return "", err
@@ -48,13 +49,8 @@ func (s *Session) Authorize(provider goth.Provider, params goth.Params) (string,
 		return "", errors.New("Invalid token received from provider")
 	}
 	s.AccessToken = token.AccessToken
-	if r, y := token.Raw[`alipay_system_oauth_token_response`]; y {
-		if m, y := r.(map[string]interface{}); y {
-			if v, y := m[`user_id`]; y {
-				s.OpenID, _ = v.(string)
-			}
-		}
-	}
+	resp := token.Raw.Store(`alipay_system_oauth_token_response`)
+	s.OpenID = resp.String(`user_id`)
 	return s.AccessToken, nil
 }
 

@@ -4,11 +4,12 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/webx-top/echo"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 )
 
-func NewToken(token *oauth2.Token, raw map[string]interface{}) *Token {
+func NewToken(token *oauth2.Token, raw echo.H) *Token {
 	return &Token{
 		Token: token,
 		Raw:   raw,
@@ -20,12 +21,12 @@ type Token struct {
 
 	// raw optionally contains extra metadata from the server
 	// when updating a token.
-	Raw map[string]interface{}
+	Raw echo.H
 }
 
 // tokenFromInternal maps an *internal.Token struct into
 // a *Token struct.
-func tokenFromInternal(t *oauth2.Token, raw map[string]interface{}) *Token {
+func tokenFromInternal(t *oauth2.Token, raw echo.H) *Token {
 	if t == nil {
 		return nil
 	}

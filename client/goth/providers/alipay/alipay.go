@@ -4,6 +4,7 @@ package alipay
 
 import (
 	"bytes"
+	"crypto/rsa"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,9 +13,11 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/markbates/goth"
+	"github.com/smartwalle/crypto4go"
 
 	"github.com/coscms/oauth2s/client/goth/oauth2"
 	oauth2x "golang.org/x/oauth2"
@@ -23,7 +26,8 @@ import (
 // These vars define the Authentication, Token, and API URLS for GitHub. If
 // using GitHub enterprise you should change these values before calling New.
 var (
-	SandBoxAPIURL = "https://openapi.alipaydev.com/gateway.do"
+	SandBoxAuthURL = "https://openauth.alipaydev.com/oauth2/publicAppAuthorize.htm"
+	SandBoxAPIURL  = "https://openapi.alipaydev.com/gateway.do"
 
 	AuthURL = "https://openauth.alipay.com/oauth2/publicAppAuthorize.htm"
 	APIURL  = "https://openapi.alipay.com/gateway.do"
@@ -33,20 +37,22 @@ var (
 // You should always call `github.New` to get a new Provider. Never try to create
 // one manually.
 func New(clientKey, secret, callbackURL string, isProduction bool, scopes ...string) *Provider {
-	var apiURL string
+	var apiURL, authURL string
 	if isProduction {
 		apiURL = APIURL
+		authURL = AuthURL
 	} else {
 		apiURL = SandBoxAPIURL
+		authURL = SandBoxAuthURL
 	}
-	return NewCustomisedURL(clientKey, secret, callbackURL, apiURL, scopes...)
+	return NewCustomisedURL(clientKey, secret, callbackURL, authURL, apiURL, scopes...)
 }
 
 // NewCustomisedURL is similar to New(...) but can be used to set custom URLs to connect to
-func NewCustomisedURL(clientKey, secret, callbackURL, apiURL string, scopes ...string) *Provider {
+func NewCustomisedURL(clientKey, privateKey, callbackURL, authURL string, apiURL string, scopes ...string) *Provider {
 	p := &Provider{
 		ClientKey:    clientKey,
-		Secret:       secret,
+		Secret:       privateKey,
 		CallbackURL:  callbackURL,
 		providerName: "alipay",
 		profileURL:   apiURL,
@@ -54,25 +60,39 @@ func NewCustomisedURL(clientKey, secret, callbackURL, apiURL string, scopes ...s
 	if len(scopes) == 0 {
 		scopes = []string{`auth_user`}
 	}
-	p.config = newConfig(p, apiURL, apiURL, scopes)
+	p.config = newConfig(p, authURL, apiURL, scopes)
 	return p
 }
 
 // Provider is the implementation of `goth.Provider` for accessing Github.
 type Provider struct {
-	ClientKey    string
-	Secret       string
-	CallbackURL  string
-	HTTPClient   *http.Client
-	config       *oauth2.Config
-	providerName string
-	profileURL   string
-	debug        bool
+	ClientKey     string
+	Secret        string
+	CallbackURL   string
+	HTTPClient    *http.Client
+	config        *oauth2.Config
+	providerName  string
+	profileURL    string
+	debug         bool
+	appPrivateKey *rsa.PrivateKey // 应用私钥
+	once          sync.Once
 }
 
 // Name is the name used to retrieve this provider later.
 func (p *Provider) Name() string {
 	return p.providerName
+}
+
+func (p *Provider) parsePrivateKey() error {
+	priKey, err := crypto4go.ParsePKCS1PrivateKey(crypto4go.FormatPKCS1PrivateKey(p.Secret))
+	if err != nil {
+		priKey, err = crypto4go.ParsePKCS8PrivateKey(crypto4go.FormatPKCS8PrivateKey(p.Secret))
+		if err != nil {
+			return err
+		}
+	}
+	p.appPrivateKey = priKey
+	return nil
 }
 
 // SetName is to update the name of the provider (needed in case of multiple providers of 1 type)
@@ -84,14 +104,21 @@ func (p *Provider) Client() *http.Client {
 	return goth.HTTPClientWithFallBack(p.HTTPClient)
 }
 
-func (p *Provider) createSign(params url.Values) string {
-	if params.Get(`sign_type`) == `RSA` {
-		return SignRSA(params, []byte(p.Secret))
+func (p *Provider) createSign(params url.Values) (string, error) {
+	var err error
+	p.once.Do(func() {
+		err = p.parsePrivateKey()
+	})
+	if err != nil {
+		return "", err
 	}
-	return SignRSA2(params, []byte(p.Secret))
+	if params.Get(`sign_type`) == `RSA` {
+		return SignRSA(params, p.appPrivateKey)
+	}
+	return SignRSA2(params, p.appPrivateKey)
 }
 
-func (p *Provider) urlParams(method string, params url.Values, extra interface{}, scopes ...string) url.Values {
+func (p *Provider) urlParams(method string, params url.Values, extra interface{}, scopes ...string) (url.Values, error) {
 	if len(method) == 0 {
 		method = `alipay.system.oauth.token`
 	}
@@ -101,14 +128,21 @@ func (p *Provider) urlParams(method string, params url.Values, extra interface{}
 	params.Set("scope", strings.Join(scopes, `,`))
 	params.Set("format", "JSON")
 	if extra != nil {
-		b, _ := json.Marshal(extra)
+		b, err := json.Marshal(extra)
+		if err != nil {
+			return nil, err
+		}
 		params.Set("biz_content", string(b))
 	}
 	params.Set("sign_type", "RSA2")
-	params.Set("timestamp", time.Now().Format(`2006-01-02 15:04:05`))
+	params.Set("timestamp", time.Now().Local().Format(`2006-01-02 15:04:05`))
 	params.Set("version", "1.0")
-	params.Set("sign", p.createSign(params))
-	return params
+	sign, err := p.createSign(params)
+	if err != nil {
+		return nil, err
+	}
+	params.Set("sign", sign)
+	return params, nil
 }
 
 // Debug is sandbox mode
@@ -126,6 +160,7 @@ func (p *Provider) BeginAuth(state string) (goth.Session, error) {
 		"state":        {state},
 	}
 	session := &Session{
+		//https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=商户的APPID&scope=auth_user&redirect_uri=ENCODED_URL&state=init
 		AuthURL: p.config.Endpoint.AuthURL + `?` + params.Encode(),
 	}
 	return session, nil
@@ -151,7 +186,11 @@ func (p *Provider) FetchUser(session goth.Session) (goth.User, error) {
 	param := url.Values{
 		"auth_token": {sess.AuthCode},
 	}
-	param = p.urlParams(`alipay.user.info.share`, param, nil, `auth_user`)
+	var err error
+	param, err = p.urlParams(`alipay.user.info.share`, param, nil, `auth_user`)
+	if err != nil {
+		return user, err
+	}
 	response, err := p.Client().Get(p.profileURL + `?` + param.Encode())
 	if err != nil {
 		return user, err
@@ -159,7 +198,7 @@ func (p *Provider) FetchUser(session goth.Session) (goth.User, error) {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return user, fmt.Errorf("QQ API responded with a %d trying to fetch user information", response.StatusCode)
+		return user, fmt.Errorf("Alipay API responded with a %d trying to fetch user information", response.StatusCode)
 	}
 
 	bits, err := ioutil.ReadAll(response.Body)

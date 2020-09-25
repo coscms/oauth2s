@@ -2,34 +2,41 @@ package alipay
 
 import (
 	"crypto"
+	"crypto/rsa"
 	"encoding/base64"
 	"net/url"
+	"sort"
+	"strings"
+
+	"github.com/smartwalle/crypto4go"
 )
 
-func SignRSA2(param url.Values, privateKey []byte) string {
-	if param == nil {
-		param = make(url.Values, 0)
-	}
-
-	src := param.Encode()
-	sig, err := SignPKCS1v15([]byte(src), privateKey, crypto.SHA256)
-	if err != nil {
-		return ""
-	}
-	return base64.StdEncoding.EncodeToString(sig)
+func SignRSA2(param url.Values, privateKey *rsa.PrivateKey) (string, error) {
+	return SignRSAx(param, privateKey, crypto.SHA256)
 }
 
-func SignRSA(param url.Values, privateKey []byte) string {
+func SignRSA(param url.Values, privateKey *rsa.PrivateKey) (string, error) {
+	return SignRSAx(param, privateKey, crypto.SHA1)
+}
+
+func SignRSAx(param url.Values, privateKey *rsa.PrivateKey, hash crypto.Hash) (string, error) {
 	if param == nil {
 		param = make(url.Values, 0)
 	}
-
-	src := param.Encode()
-	sig, err := SignPKCS1v15([]byte(src), privateKey, crypto.SHA1)
-	if err != nil {
-		return ""
+	pList := make([]string, 0, 0)
+	for key := range param {
+		var value = strings.TrimSpace(param.Get(key))
+		if len(value) > 0 {
+			pList = append(pList, key+"="+value)
+		}
 	}
-	return base64.StdEncoding.EncodeToString(sig)
+	sort.Strings(pList)
+	src := strings.Join(pList, "&")
+	sig, err := crypto4go.RSASignWithKey([]byte(src), privateKey, hash)
+	if err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(sig), nil
 }
 
 func VerifySign(val url.Values, key []byte) error {
@@ -38,18 +45,23 @@ func VerifySign(val url.Values, key []byte) error {
 		return err
 	}
 	signType := val.Get("sign_type")
-	if _, ok := val[`sign`]; ok {
-		val.Del("sign")
+	keys := make([]string, 0, 0)
+	for key := range val {
+		if key == `sign` || key == `sign_type` || key == `alipay_cert_sn` {
+			continue
+		}
+		keys = append(keys, key)
 	}
-	if _, ok := val[`sign_type`]; ok {
-		val.Del("sign_type")
+	sort.Strings(keys)
+	pList := make([]string, 0, 0)
+	for _, key := range keys {
+		pList = append(pList, key+"="+val.Get(key))
 	}
-	s := val.Encode()
-
+	s := strings.Join(pList, "&")
 	if signType == `RSA` {
-		err = VerifyPKCS1v15([]byte(s), sign, key, crypto.SHA1)
+		err = crypto4go.RSAVerify([]byte(s), sign, key, crypto.SHA1)
 	} else {
-		err = VerifyPKCS1v15([]byte(s), sign, key, crypto.SHA256)
+		err = crypto4go.RSAVerify([]byte(s), sign, key, crypto.SHA256)
 	}
 	return err
 }
@@ -61,33 +73,9 @@ func VerifyResponseData(data []byte, signType, sign string, key []byte) error {
 	}
 
 	if signType == `RSA` {
-		err = VerifyPKCS1v15(data, signBytes, key, crypto.SHA1)
+		err = crypto4go.RSAVerify(data, signBytes, key, crypto.SHA1)
 	} else {
-		err = VerifyPKCS1v15(data, signBytes, key, crypto.SHA256)
+		err = crypto4go.RSAVerify(data, signBytes, key, crypto.SHA256)
 	}
 	return err
-}
-
-func FormatNormalKey(b []byte, isPublicKey bool) (r []byte) {
-	var name string
-	if isPublicKey {
-		name = `PUBLIC`
-	} else {
-		name = `PRIVATE`
-	}
-	r = append(r, []byte(`-----BEGIN `+name+` KEY-----`)...)
-	for p, j := 1, len(b); ; p++ {
-		offset := (p - 1) * 64
-		end := offset + 64
-		r = append(r, '\n')
-		if end < j {
-			r = append(r, b[offset:end]...)
-			continue
-		}
-		r = append(r, b[offset:]...)
-		break
-	}
-	r = append(r, '\n')
-	r = append(r, []byte(`-----END `+name+` KEY-----`)...)
-	return
 }

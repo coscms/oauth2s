@@ -114,7 +114,7 @@ func (p *Provider) FetchUser(session goth.Session) (goth.User, error) {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return user, fmt.Errorf("QQ API responded with a %d trying to fetch user information", response.StatusCode)
+		return user, fmt.Errorf("Wechat API responded with a %d trying to fetch user information", response.StatusCode)
 	}
 
 	bits, err := ioutil.ReadAll(response.Body)

@@ -8,10 +8,11 @@ import (
 	"mime"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 	"time"
 
+	"github.com/webx-top/echo"
+	"github.com/webx-top/echo/param"
 	"golang.org/x/net/context"
 	"golang.org/x/net/context/ctxhttp"
 	"golang.org/x/oauth2"
@@ -63,9 +64,9 @@ func ContextClient(ctx context.Context) (*http.Client, error) {
 	return http.DefaultClient, nil
 }
 
-func RetrieveToken(ctx context.Context, callback func(req *http.Request), tokenURL string, v url.Values) (*oauth2.Token, map[string]interface{}, error) {
+func RetrieveToken(ctx context.Context, callback func(req *http.Request), tokenURL string, v url.Values) (*oauth2.Token, echo.H, error) {
 	var token *oauth2.Token
-	raw := map[string]interface{}{}
+	raw := echo.H{}
 	hc, err := ContextClient(ctx)
 	if err != nil {
 		return token, raw, err
@@ -91,6 +92,7 @@ func RetrieveToken(ctx context.Context, callback func(req *http.Request), tokenU
 		return token, raw, fmt.Errorf("oauth2: cannot fetch token: %v\nResponse: %s", r.Status, body)
 	}
 
+	var lifetime int64
 	content, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
 	switch content {
 	case "application/x-www-form-urlencoded", "text/plain":
@@ -105,25 +107,22 @@ func RetrieveToken(ctx context.Context, callback func(req *http.Request), tokenU
 		}
 
 		for k, v := range vals {
-			if len(v) > 0 {
-				if len(v) == 1 {
-					raw[k] = v[0]
-				} else {
-					raw[k] = v
-				}
+			if len(v) == 0 {
+				continue
+			}
+			if len(v) == 1 {
+				raw[k] = v[0]
+			} else {
+				raw[k] = v
 			}
 		}
 
-		e := vals.Get("expires_in")
-		if len(e) == 0 {
-			// TODO(jbd): Facebook's OAuth2 implementation is broken and
-			// returns expires_in field in expires. Remove the fallback to expires,
-			// when Facebook fixes their implementation.
-			e = vals.Get("expires")
+		expires := vals.Get("expires_in")
+		if len(expires) == 0 {
+			expires = vals.Get("expires")
 		}
-		expires, _ := strconv.Atoi(e)
-		if expires != 0 {
-			token.Expiry = time.Now().Add(time.Duration(expires) * time.Second)
+		if len(expires) > 0 {
+			lifetime = param.AsInt64(expires)
 		}
 	default:
 		token = &oauth2.Token{}
@@ -131,47 +130,41 @@ func RetrieveToken(ctx context.Context, callback func(req *http.Request), tokenU
 		if err != nil {
 			return token, raw, err
 		}
-		var m map[string]interface{}
-		if _, y := raw[`access_token`]; !y {
+		var m echo.H
+		if !raw.Has(`access_token`) {
 			for _, val := range raw {
-				if v, y := val.(map[string]interface{}); y {
-					if _, y := v[`access_token`]; y {
-						m = v
-						break
-					}
+				v, y := val.(map[string]interface{})
+				if !y {
+					continue
 				}
+				_, y = v[`access_token`]
+				if !y {
+					continue
+				}
+				m = echo.H(v)
+				break
 			}
 		} else {
 			m = raw
 		}
 		if m != nil {
-			if v, y := m[`access_token`]; y {
-				token.AccessToken = fmt.Sprint(v)
-			}
-			if v, y := m[`refresh_token`]; y {
-				token.RefreshToken = fmt.Sprint(v)
-			}
-			if v, y := m[`token_type`]; y {
-				token.TokenType = fmt.Sprint(v)
-			}
-			if v, y := m[`expires_in`]; y {
-				lifetime, _ := strconv.ParseInt(fmt.Sprint(v), 10, 64)
-				if lifetime > 0 {
-					token.Expiry = time.Now().Add(time.Duration(lifetime) * time.Second)
-				}
-			}
-			if v, y := m[`expires`]; y {
-				lifetime, _ := strconv.ParseInt(fmt.Sprint(v), 10, 64)
-				if lifetime > 0 {
-					token.Expiry = time.Now().Add(time.Duration(lifetime) * time.Second)
-				}
+			token.AccessToken = m.String(`access_token`)
+			token.RefreshToken = m.String(`refresh_token`)
+			token.TokenType = m.String(`token_type`)
+			if m.Has(`expires_in`) {
+				lifetime = m.Int64(`expires_in`)
+			} else if m.Has(`expires`) {
+				lifetime = m.Int64(`expires`)
 			}
 		}
+	}
+	if lifetime > 0 {
+		token.Expiry = time.Now().Local().Add(time.Duration(lifetime) * time.Second)
 	}
 	// Don't overwrite `RefreshToken` with an empty value
 	// if this was a token refreshing request.
 	if len(token.RefreshToken) == 0 {
 		token.RefreshToken = v.Get("refresh_token")
 	}
-	return nil, raw, nil
+	return token, raw, nil
 }
