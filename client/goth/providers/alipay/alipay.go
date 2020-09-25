@@ -67,6 +67,7 @@ type Provider struct {
 	config       *oauth2.Config
 	providerName string
 	profileURL   string
+	debug        bool
 }
 
 // Name is the name used to retrieve this provider later.
@@ -110,8 +111,10 @@ func (p *Provider) urlParams(method string, params url.Values, extra interface{}
 	return params
 }
 
-// Debug is a no-op for the github package.
-func (p *Provider) Debug(debug bool) {}
+// Debug is sandbox mode
+func (p *Provider) Debug(debug bool) {
+	p.debug = debug
+}
 
 // BeginAuth asks Github for an authentication end-point.
 func (p *Provider) BeginAuth(state string) (goth.Session, error) {
@@ -122,9 +125,8 @@ func (p *Provider) BeginAuth(state string) (goth.Session, error) {
 		"redirect_uri": {p.CallbackURL},
 		"state":        {state},
 	}
-	url := p.config.Endpoint.AuthURL + `?` + params.Encode()
 	session := &Session{
-		AuthURL: url,
+		AuthURL: p.config.Endpoint.AuthURL + `?` + params.Encode(),
 	}
 	return session, nil
 }

@@ -11,26 +11,29 @@ import (
 	"github.com/coscms/oauth2s/client/goth/providers/weibo"
 )
 
-var constructors = map[string]func(account *oauth2.Account, isProduction bool) goth.Provider{
-	`alipay`: func(account *oauth2.Account, isProduction bool) goth.Provider {
-		return alipay.New(account.Key, account.Secret, account.CallbackURL, isProduction)
+var constructors = map[string]func(account *oauth2.Account) goth.Provider{
+	`alipay`: func(account *oauth2.Account) goth.Provider {
+		return alipay.New(account.Key, account.Secret, account.CallbackURL, true)
 	},
-	`qq`: func(account *oauth2.Account, isProduction bool) goth.Provider {
+	`alipay_dev`: func(account *oauth2.Account) goth.Provider {
+		return alipay.New(account.Key, account.Secret, account.CallbackURL, false)
+	},
+	`qq`: func(account *oauth2.Account) goth.Provider {
 		return qq.New(account.Key, account.Secret, account.CallbackURL)
 	},
-	`weibo`: func(account *oauth2.Account, isProduction bool) goth.Provider {
+	`weibo`: func(account *oauth2.Account) goth.Provider {
 		return weibo.New(account.Key, account.Secret, account.CallbackURL)
 	},
-	`wechat`: func(account *oauth2.Account, isProduction bool) goth.Provider {
+	`wechat`: func(account *oauth2.Account) goth.Provider {
 		return wechat.New(account.Key, account.Secret, account.CallbackURL)
 	},
 }
 
-func Register(name string, constructor func(account *oauth2.Account, isProduction bool) goth.Provider) {
+func Register(name string, constructor func(account *oauth2.Account) goth.Provider) {
 	constructors[name] = constructor
 }
 
-func Get(name string) func(account *oauth2.Account, isProduction bool) goth.Provider {
+func Get(name string) func(account *oauth2.Account) goth.Provider {
 	constructor, _ := constructors[name]
 	return constructor
 }
