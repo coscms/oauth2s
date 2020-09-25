@@ -81,9 +81,10 @@ func (p *Provider) Debug(debug bool) {}
 
 // BeginAuth asks Github for an authentication end-point.
 func (p *Provider) BeginAuth(state string) (goth.Session, error) {
+	optSetter := oauth2.SetAuthURLParam(`appid`, p.ClientKey)
 	session := &Session{
-		AuthURL:         p.config.AuthCodeURL(state) + `&appid=` + p.ClientKey + `&secret=` + p.Secret,
-		AuthURLInWechat: p.configInWechat.AuthCodeURL(state) + `&appid=` + p.ClientKey + `&secret=` + p.Secret,
+		AuthURL:         p.config.AuthCodeURL(state, optSetter),
+		AuthURLInWechat: p.configInWechat.AuthCodeURL(state, optSetter),
 	}
 	return session, nil
 }

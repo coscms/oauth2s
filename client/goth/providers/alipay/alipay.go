@@ -32,9 +32,14 @@ var (
 // New creates a new Github provider, and sets up important connection details.
 // You should always call `github.New` to get a new Provider. Never try to create
 // one manually.
-func New(clientKey, secret, callbackURL string, scopes ...string) *Provider {
-	return NewCustomisedURL(clientKey, secret, callbackURL, SandBoxAPIURL, scopes...)
-	return NewCustomisedURL(clientKey, secret, callbackURL, APIURL, scopes...)
+func New(clientKey, secret, callbackURL string, isProduction bool, scopes ...string) *Provider {
+	var apiURL string
+	if isProduction {
+		apiURL = APIURL
+	} else {
+		apiURL = SandBoxAPIURL
+	}
+	return NewCustomisedURL(clientKey, secret, callbackURL, apiURL, scopes...)
 }
 
 // NewCustomisedURL is similar to New(...) but can be used to set custom URLs to connect to
@@ -117,7 +122,7 @@ func (p *Provider) BeginAuth(state string) (goth.Session, error) {
 		"redirect_uri": {p.CallbackURL},
 		"state":        {state},
 	}
-	url := AuthURL + `?` + params.Encode()
+	url := p.config.Endpoint.AuthURL + `?` + params.Encode()
 	session := &Session{
 		AuthURL: url,
 	}

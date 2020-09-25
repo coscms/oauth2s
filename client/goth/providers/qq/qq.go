@@ -84,9 +84,8 @@ func (p *Provider) Debug(debug bool) {}
 
 // BeginAuth asks Github for an authentication end-point.
 func (p *Provider) BeginAuth(state string) (goth.Session, error) {
-	url := p.config.AuthCodeURL(state)
 	session := &Session{
-		AuthURL: url + `&client_secret=` + p.Secret,
+		AuthURL: p.config.AuthCodeURL(state),
 	}
 	return session, nil
 }
