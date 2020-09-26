@@ -19,8 +19,10 @@ func NewManager(config *Config) (*manage.Manager, error) {
 	manager.MapTokenStorage(config.Store)
 
 	// access token generate method: jwt
-	jwtAccessGenerate := generates.NewJWTAccessGenerate(config.JWTKeyID, config.JWTKey, config.JWTMethod)
-	manager.MapAccessGenerate(jwtAccessGenerate)
+	if config.JWTMethod != nil {
+		jwtAccessGenerate := generates.NewJWTAccessGenerate(config.JWTKeyID, config.JWTKey, config.JWTMethod)
+		manager.MapAccessGenerate(jwtAccessGenerate)
+	}
 	manager.MapClientStorage(config.ClientStore)
 	return manager, err
 }
