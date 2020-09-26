@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"crypto/tls"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -124,5 +125,11 @@ func RedisLimiter(limiter redis.Limiter) RedisOptionsSetter {
 func RedisKeyNamespace(keyNamespace string) RedisOptionsSetter {
 	return func(opt *Options) {
 		opt.KeyNamespace = keyNamespace
+	}
+}
+
+func RedisTLSConfig(config *tls.Config) RedisOptionsSetter {
+	return func(opt *Options) {
+		opt.TLSConfig = config
 	}
 }
