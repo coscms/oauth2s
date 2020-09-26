@@ -12,8 +12,9 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/coscms/oauth2s/client/goth/oauth2"
 	"github.com/markbates/goth"
-	"golang.org/x/oauth2"
+	oauth2x "golang.org/x/oauth2"
 )
 
 // These vars define the Authentication, Token, and API URLS for GitHub. If
@@ -38,6 +39,7 @@ func NewCustomisedURL(clientKey, secret, callbackURL, authURL, tokenURL, profile
 		ClientKey:    clientKey,
 		Secret:       secret,
 		CallbackURL:  callbackURL,
+		HTTPClient:   oauth2.DefaultClient,
 		providerName: "qq",
 		profileURL:   profileURL,
 		meURL:        meURL,
@@ -55,7 +57,7 @@ type Provider struct {
 	Secret       string
 	CallbackURL  string
 	HTTPClient   *http.Client
-	config       *oauth2.Config
+	config       *oauth2x.Config
 	providerName string
 	profileURL   string
 	meURL        string
@@ -202,12 +204,12 @@ func getOpenID(p *Provider, sess *Session) error {
 	return err
 }
 
-func newConfig(provider *Provider, authURL, tokenURL string, scopes []string) *oauth2.Config {
-	c := &oauth2.Config{
+func newConfig(provider *Provider, authURL, tokenURL string, scopes []string) *oauth2x.Config {
+	c := &oauth2x.Config{
 		ClientID:     provider.ClientKey,
 		ClientSecret: provider.Secret,
 		RedirectURL:  provider.CallbackURL,
-		Endpoint: oauth2.Endpoint{
+		Endpoint: oauth2x.Endpoint{
 			AuthURL:  authURL,
 			TokenURL: tokenURL,
 		},
@@ -222,7 +224,7 @@ func newConfig(provider *Provider, authURL, tokenURL string, scopes []string) *o
 }
 
 //RefreshToken refresh token is not provided by QQ
-func (p *Provider) RefreshToken(refreshToken string) (*oauth2.Token, error) {
+func (p *Provider) RefreshToken(refreshToken string) (*oauth2x.Token, error) {
 	return nil, errors.New("Refresh token is not provided by QQ")
 }
 

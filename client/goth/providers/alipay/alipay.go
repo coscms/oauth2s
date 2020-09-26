@@ -54,6 +54,7 @@ func NewCustomisedURL(clientKey, privateKey, callbackURL, authURL string, apiURL
 		ClientKey:    clientKey,
 		Secret:       privateKey,
 		CallbackURL:  callbackURL,
+		HTTPClient:   oauth2.DefaultClient,
 		providerName: "alipay",
 		profileURL:   apiURL,
 	}
@@ -151,6 +152,7 @@ func (p *Provider) Debug(debug bool) {
 }
 
 // BeginAuth asks Github for an authentication end-point.
+// documentation https://opensupport.alipay.com/support/helpcenter/166/201602504335?ant_source=zsearch#
 func (p *Provider) BeginAuth(state string) (goth.Session, error) {
 	//url := p.config.AuthCodeURL(state)
 	params := url.Values{
@@ -167,6 +169,7 @@ func (p *Provider) BeginAuth(state string) (goth.Session, error) {
 }
 
 // FetchUser will go to Github and access basic information about the user.
+// documentation https://opendocs.alipay.com/apis/api_2/alipay.user.info.share
 func (p *Provider) FetchUser(session goth.Session) (goth.User, error) {
 	sess := session.(*Session)
 	user := goth.User{
@@ -222,6 +225,9 @@ func userFromReader(reader io.Reader, user *goth.User) error {
 		Name      string `json:"nick_name"`
 		AvatarURL string `json:"avatar"`
 		Gender    string `json:"gender"`
+		Province  string `json:"province"` // 省份名称
+		City      string `json:"city"`     // 城市名称
+		UserID    string `json:"user_id"`  // 支付宝用户userId 最大长度16位
 	}{}
 
 	err := json.NewDecoder(reader).Decode(&u)
@@ -235,7 +241,8 @@ func userFromReader(reader io.Reader, user *goth.User) error {
 	user.AvatarURL = u.AvatarURL
 	user.RawData[`gender`] = u.Gender
 	//user.UserID = strconv.Itoa(u.ID)
-	//user.Location = u.Location
+	user.Location = u.Province + `,` + u.City
+	user.IDToken = u.UserID
 
 	return err
 }

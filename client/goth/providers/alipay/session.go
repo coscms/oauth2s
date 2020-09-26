@@ -31,6 +31,7 @@ func (s Session) GetAuthURL() (string, error) {
 
 // Authorize the session with Github and return the access token to be stored for future use.
 // ?state=state&app_id=hide&source=alipay_wallet&userOutputs=auth_user&scope=auth_user&alipay_token=&auth_code=7b7022f35fff49b896d0251bc763VX39
+// documentation https://opendocs.alipay.com/apis/api_9/alipay.system.oauth.token
 func (s *Session) Authorize(provider goth.Provider, params goth.Params) (string, error) {
 	p := provider.(*Provider)
 	s.AuthCode = params.Get("auth_code")

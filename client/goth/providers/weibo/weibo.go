@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 
+	oauth2c "github.com/coscms/oauth2s/client/goth/oauth2"
 	"github.com/markbates/goth"
 	"golang.org/x/oauth2"
 )
@@ -37,6 +38,7 @@ func NewCustomisedURL(clientKey, secret, callbackURL, authURL, tokenURL, profile
 		ClientKey:    clientKey,
 		Secret:       secret,
 		CallbackURL:  callbackURL,
+		HTTPClient:   oauth2c.DefaultClient,
 		providerName: "weibo",
 		profileURL:   profileURL,
 	}
