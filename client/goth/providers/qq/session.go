@@ -4,16 +4,19 @@ import (
 	"encoding/json"
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/markbates/goth"
 )
 
 // Session stores data during the auth process with QQ.
 type Session struct {
-	AuthURL     string
-	AccessToken string
-	OpenID      string
-	UnionID     string
+	AuthURL      string
+	AccessToken  string
+	RefreshToken string
+	OpenID       string
+	UnionID      string
+	Expiry       time.Time
 }
 
 // GetAuthURL will return the URL set by calling the `BeginAuth` function on the QQ provider.
@@ -37,6 +40,8 @@ func (s *Session) Authorize(provider goth.Provider, params goth.Params) (string,
 	}
 
 	s.AccessToken = token.AccessToken
+	s.RefreshToken = token.RefreshToken
+	s.Expiry = token.Expiry
 	s.UnionID, _ = token.Extra(`unionid`).(string)
 	s.OpenID, _ = token.Extra(`openid`).(string)
 	return token.AccessToken, err

@@ -93,8 +93,10 @@ func (p *Provider) BeginAuth(state string) (goth.Session, error) {
 func (p *Provider) FetchUser(session goth.Session) (goth.User, error) {
 	sess := session.(*Session)
 	user := goth.User{
-		AccessToken: sess.AccessToken,
-		Provider:    p.Name(),
+		AccessToken:  sess.AccessToken,
+		RefreshToken: sess.RefreshToken,
+		ExpiresAt:    sess.Expiry,
+		Provider:     p.Name(),
 	}
 
 	if user.AccessToken == "" {

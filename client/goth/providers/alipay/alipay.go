@@ -170,9 +170,11 @@ func (p *Provider) BeginAuth(state string) (goth.Session, error) {
 func (p *Provider) FetchUser(session goth.Session) (goth.User, error) {
 	sess := session.(*Session)
 	user := goth.User{
-		AccessToken: sess.AccessToken,
-		Provider:    p.Name(),
-		RawData:     make(map[string]interface{}),
+		AccessToken:  sess.AccessToken,
+		RefreshToken: sess.RefreshToken,
+		ExpiresAt:    sess.Expiry,
+		Provider:     p.Name(),
+		RawData:      make(map[string]interface{}),
 	}
 	if user.AccessToken == "" {
 		// data is not yet retrieved since accessToken is still empty

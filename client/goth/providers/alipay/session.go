@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/coscms/oauth2s/client/goth/oauth2"
 	"github.com/markbates/goth"
@@ -12,10 +13,12 @@ import (
 
 // Session stores data during the auth process with QQ.
 type Session struct {
-	AuthURL     string
-	AuthCode    string
-	AccessToken string
-	OpenID      string
+	AuthURL      string
+	AuthCode     string
+	AccessToken  string
+	RefreshToken string
+	OpenID       string
+	Expiry       time.Time
 }
 
 // GetAuthURL will return the URL set by calling the `BeginAuth` function on the QQ provider.
@@ -49,6 +52,8 @@ func (s *Session) Authorize(provider goth.Provider, params goth.Params) (string,
 		return "", errors.New("Invalid token received from provider")
 	}
 	s.AccessToken = token.AccessToken
+	s.RefreshToken = token.RefreshToken
+	s.Expiry = token.Expiry
 	resp := token.Raw.Store(`alipay_system_oauth_token_response`)
 	s.OpenID = resp.String(`user_id`)
 	return s.AccessToken, nil
