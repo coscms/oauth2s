@@ -14,9 +14,9 @@ import (
 // Session stores data during the auth process with QQ.
 type Session struct {
 	AuthURL      string
-	AuthCode     string
 	AccessToken  string
 	RefreshToken string
+	OpenID       string
 	Expiry       time.Time
 }
 
@@ -33,10 +33,9 @@ func (s Session) GetAuthURL() (string, error) {
 // documentation https://opendocs.alipay.com/apis/api_9/alipay.system.oauth.token
 func (s *Session) Authorize(provider goth.Provider, params goth.Params) (string, error) {
 	p := provider.(*Provider)
-	s.AuthCode = params.Get("auth_code")
 	urlParams := url.Values{
 		"grant_type":   {"authorization_code"},
-		"code":         {s.AuthCode},
+		"code":         {params.Get("auth_code")},
 		"redirect_uri": oauth2.CondVal(p.CallbackURL),
 	}
 	var err error
@@ -54,6 +53,8 @@ func (s *Session) Authorize(provider goth.Provider, params goth.Params) (string,
 	s.AccessToken = token.AccessToken
 	s.RefreshToken = token.RefreshToken
 	s.Expiry = token.Expiry
+	resp := token.Raw.Store(`alipay_system_oauth_token_response`)
+	s.OpenID = resp.String(`user_id`)
 	return s.AccessToken, nil
 }
 

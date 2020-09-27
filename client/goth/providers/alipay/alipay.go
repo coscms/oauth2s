@@ -175,6 +175,7 @@ func (p *Provider) FetchUser(session goth.Session) (goth.User, error) {
 	user := goth.User{
 		AccessToken:  sess.AccessToken,
 		RefreshToken: sess.RefreshToken,
+		UserID:       sess.OpenID,
 		ExpiresAt:    sess.Expiry,
 		Provider:     p.Name(),
 		RawData:      make(map[string]interface{}),
@@ -184,7 +185,7 @@ func (p *Provider) FetchUser(session goth.Session) (goth.User, error) {
 		return user, fmt.Errorf("%s cannot get user information without accessToken", p.providerName)
 	}
 	param := url.Values{
-		"auth_token": {sess.AuthCode},
+		"auth_token": {sess.AccessToken},
 	}
 	var err error
 	param, err = p.urlParams(`alipay.user.info.share`, param, nil, `auth_user`)
@@ -215,27 +216,57 @@ func (p *Provider) FetchUser(session goth.Session) (goth.User, error) {
 	return user, err
 }
 
+const codeSuccess = `10000`
+
 func userFromReader(reader io.Reader, user *goth.User) error {
+	/*
+		{
+		    "alipay_user_info_share_response": {
+		        "code": "10000",
+		        "msg": "Success",
+		        "user_id": "2088102104794936",
+		        "avatar": "http://tfsimg.alipay.com/images/partner/T1uIxXXbpXXXXXXXX",
+		        "province": "安徽省",
+		        "city": "安庆",
+		        "nick_name": "支付宝小二",
+		        "gender": "F"
+		    },
+		    "sign": "ERITJKEIJKJHKKKKKKKHJEREEEEEEEEEEE"
+		}
+	*/
 	u := struct {
-		Name      string `json:"nick_name"`
-		AvatarURL string `json:"avatar"`
-		Gender    string `json:"gender"`
-		Province  string `json:"province"` // 省份名称
-		City      string `json:"city"`     // 城市名称
-		UserID    string `json:"user_id"`  // 支付宝用户userId 最大长度16位
+		Response struct {
+			Code      string `json:"code"`
+			Msg       string `json:"msg"`
+			Name      string `json:"nick_name"`
+			AvatarURL string `json:"avatar"`
+			Gender    string `json:"gender"`
+			Province  string `json:"province"` // 省份名称
+			City      string `json:"city"`     // 城市名称
+			UserID    string `json:"user_id"`  // 支付宝用户userId 最大长度16位
+		} `json:"alipay_user_info_share_response"`
+		Sign string `json:"sign"`
 	}{}
 
 	err := json.NewDecoder(reader).Decode(&u)
 	if err != nil {
 		return err
 	}
+	if u.Response.Code != codeSuccess {
+		return errors.New(u.Response.Msg)
+	}
 
-	user.Name = u.Name
-	user.NickName = u.Name
-	user.AvatarURL = u.AvatarURL
-	user.RawData[`gender`] = u.Gender
-	user.Location = u.Province + `,` + u.City
-	user.IDToken = u.UserID
+	user.Name = u.Response.Name
+	user.NickName = u.Response.Name
+	user.AvatarURL = u.Response.AvatarURL
+	user.RawData[`gender`] = u.Response.Gender
+	if len(u.Response.Province) > 0 && len(u.Response.City) > 0 {
+		user.Location = u.Response.Province + `,` + u.Response.City
+	}
+	user.IDToken = u.Response.UserID
+	if len(u.Response.UserID) > 0 {
+		user.UserID = u.Response.UserID
+	}
 
 	return err
 }
