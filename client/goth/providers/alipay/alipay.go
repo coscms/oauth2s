@@ -183,11 +183,6 @@ func (p *Provider) FetchUser(session goth.Session) (goth.User, error) {
 		// data is not yet retrieved since accessToken is still empty
 		return user, fmt.Errorf("%s cannot get user information without accessToken", p.providerName)
 	}
-	if err := getOpenID(p, sess); err != nil {
-		return user, err
-	}
-	user.UserID = sess.OpenID
-
 	param := url.Values{
 		"auth_token": {sess.AuthCode},
 	}
@@ -237,21 +232,12 @@ func userFromReader(reader io.Reader, user *goth.User) error {
 
 	user.Name = u.Name
 	user.NickName = u.Name
-	//user.Email = u.Email
 	user.AvatarURL = u.AvatarURL
 	user.RawData[`gender`] = u.Gender
-	//user.UserID = strconv.Itoa(u.ID)
 	user.Location = u.Province + `,` + u.City
 	user.IDToken = u.UserID
 
 	return err
-}
-
-func getOpenID(p *Provider, sess *Session) error {
-	if len(sess.OpenID) > 0 {
-		return nil
-	}
-	return errors.New(`Cannot get openid`)
 }
 
 func newConfig(provider *Provider, authURL, tokenURL string, scopes []string) *oauth2.Config {

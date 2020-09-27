@@ -17,7 +17,6 @@ type Session struct {
 	AuthCode     string
 	AccessToken  string
 	RefreshToken string
-	OpenID       string
 	Expiry       time.Time
 }
 
@@ -55,8 +54,6 @@ func (s *Session) Authorize(provider goth.Provider, params goth.Params) (string,
 	s.AccessToken = token.AccessToken
 	s.RefreshToken = token.RefreshToken
 	s.Expiry = token.Expiry
-	resp := token.Raw.Store(`alipay_system_oauth_token_response`)
-	s.OpenID = resp.String(`user_id`)
 	return s.AccessToken, nil
 }
 
