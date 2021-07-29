@@ -14,7 +14,7 @@ require (
 	github.com/francoispqt/gojay v1.2.13 // indirect
 	github.com/go-oauth2/oauth2/v4 v4.4.1
 	github.com/go-oauth2/redis/v4 v4.1.1
-	github.com/go-redis/redis/v8 v8.11.0
+	github.com/go-redis/redis/v8 v8.11.1
 	github.com/goccy/go-json v0.7.4 // indirect
 	github.com/golang-jwt/jwt v3.2.1+incompatible
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -32,7 +32,7 @@ require (
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/webx-top/captcha v0.0.1 // indirect
 	github.com/webx-top/com v0.2.7
-	github.com/webx-top/echo v2.18.2+incompatible
+	github.com/webx-top/echo v2.18.3+incompatible
 	github.com/webx-top/tagfast v0.0.0-20161020041435-9a2065ce3dd2 // indirect
 	github.com/webx-top/validation v0.0.1 // indirect
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
