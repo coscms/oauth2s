@@ -11,12 +11,12 @@ require (
 	github.com/admpub/humanize v0.0.0-20190501023926-5f826e92c8ca // indirect
 	github.com/admpub/log v0.3.1 // indirect
 	github.com/admpub/realip v0.0.0-20210421084339-374cf5df122d // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/francoispqt/gojay v1.2.13 // indirect
 	github.com/go-oauth2/oauth2/v4 v4.4.1
 	github.com/go-oauth2/redis/v4 v4.1.1
 	github.com/go-redis/redis/v8 v8.11.0
 	github.com/goccy/go-json v0.7.4 // indirect
+	github.com/golang-jwt/jwt v3.2.1+incompatible
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
