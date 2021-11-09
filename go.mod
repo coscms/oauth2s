@@ -3,42 +3,40 @@ module github.com/coscms/oauth2s
 go 1.14
 
 require (
-	github.com/admpub/copier v0.0.1 // indirect
+	github.com/admpub/copier v0.0.2 // indirect
 	github.com/admpub/decimal v0.0.2 // indirect
 	github.com/admpub/events v1.2.0 // indirect
-	github.com/admpub/fsnotify v1.4.4 // indirect
+	github.com/admpub/fsnotify v1.5.0 // indirect
 	github.com/admpub/go-reuseport v0.0.4 // indirect
 	github.com/admpub/humanize v0.0.0-20190501023926-5f826e92c8ca // indirect
-	github.com/admpub/log v0.3.1 // indirect
+	github.com/admpub/log v1.3.2 // indirect
 	github.com/admpub/realip v0.0.0-20210421084339-374cf5df122d // indirect
 	github.com/francoispqt/gojay v1.2.13 // indirect
-	github.com/go-oauth2/oauth2/v4 v4.4.1
+	github.com/go-oauth2/oauth2/v4 v4.4.2
 	github.com/go-oauth2/redis/v4 v4.1.1
-	github.com/go-redis/redis/v8 v8.11.1
-	github.com/goccy/go-json v0.7.4 // indirect
-	github.com/golang-jwt/jwt v3.2.1+incompatible
-	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/go-redis/redis/v8 v8.11.4
+	github.com/goccy/go-json v0.7.10 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
-	github.com/json-iterator/go v1.1.11 // indirect
+	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/markbates/goth v1.68.0
-	github.com/mattn/go-isatty v0.0.13 // indirect
+	github.com/mattn/go-colorable v0.1.11 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mrjones/oauth v0.0.0-20190623134757-126b35219450 // indirect
-	github.com/smartwalle/crypto4go v1.0.2
+	github.com/smartwalle/crypto4go v1.0.3
 	github.com/stretchr/testify v1.7.0 // indirect
-	github.com/tidwall/buntdb v1.2.4 // indirect
-	github.com/tidwall/gjson v1.8.1 // indirect
-	github.com/tidwall/pretty v1.2.0 // indirect
+	github.com/tidwall/buntdb v1.2.7 // indirect
+	github.com/tidwall/gjson v1.11.0 // indirect
 	github.com/webx-top/captcha v0.0.1 // indirect
-	github.com/webx-top/com v0.2.7
-	github.com/webx-top/echo v2.18.3+incompatible
-	github.com/webx-top/tagfast v0.0.0-20161020041435-9a2065ce3dd2 // indirect
-	github.com/webx-top/validation v0.0.1 // indirect
-	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
-	golang.org/x/net v0.0.0-20210726213435-c6fcb2dbf985
-	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914
-	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
+	github.com/webx-top/com v0.3.0
+	github.com/webx-top/echo v2.22.17+incompatible
+	github.com/webx-top/validation v0.0.3 // indirect
+	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa // indirect
+	golang.org/x/net v0.0.0-20211108170745-6635138e15ea
+	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
+	golang.org/x/sys v0.0.0-20211108224332-cbcd623f202e // indirect
+	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 )
