@@ -1,6 +1,7 @@
 package oauth2s
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-oauth2/oauth2/v4/errors"
@@ -8,7 +9,7 @@ import (
 )
 
 type HandlerInfo struct {
-	PasswordAuthorization func(username, password string) (userID string, err error)
+	PasswordAuthorization func(ctx context.Context, username, password string) (userID string, err error)
 	UserAuthorize         func(w http.ResponseWriter, r *http.Request) (userID string, err error)
 	InternalError         func(error) *errors.Response
 	ResponseError         func(*errors.Response)
@@ -17,7 +18,7 @@ type HandlerInfo struct {
 var (
 	RequestFormDataCacheKey = `oauth2RequestForm`
 
-	PasswordAuthorizationHandler = func(username, password string) (userID string, err error) {
+	PasswordAuthorizationHandler = func(ctx context.Context, username, password string) (userID string, err error) {
 		return
 	}
 
