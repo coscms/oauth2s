@@ -1,9 +1,9 @@
 package oauth2s
 
 import (
-	"github.com/go-oauth2/oauth2/v4/generates"
-	"github.com/go-oauth2/oauth2/v4/manage"
-	"github.com/go-oauth2/oauth2/v4/store"
+	"github.com/admpub/oauth2/v4/generates"
+	"github.com/admpub/oauth2/v4/manage"
+	"github.com/admpub/oauth2/v4/store"
 )
 
 func NewManager(config *Config) (*manage.Manager, error) {

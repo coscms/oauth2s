@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/go-oauth2/oauth2/v4/errors"
+	"github.com/admpub/oauth2/v4/errors"
 	"github.com/webx-top/echo"
 )
 
