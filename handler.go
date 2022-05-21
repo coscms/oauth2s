@@ -5,24 +5,25 @@ import (
 	"net/http"
 
 	"github.com/admpub/oauth2/v4/errors"
+	"github.com/admpub/oauth2/v4/server"
 	"github.com/webx-top/echo"
 )
 
 type HandlerInfo struct {
-	PasswordAuthorization func(ctx context.Context, username, password string) (userID string, err error)
-	UserAuthorize         func(w http.ResponseWriter, r *http.Request) (userID string, err error)
-	InternalError         func(error) *errors.Response
-	ResponseError         func(*errors.Response)
+	PasswordAuthorization server.PasswordAuthorizationHandler
+	UserAuthorize         server.UserAuthorizationHandler
+	InternalError         server.InternalErrorHandler
+	ResponseError         server.ResponseErrorHandler
 }
 
 var (
 	RequestFormDataCacheKey = `oauth2RequestForm`
 
-	PasswordAuthorizationHandler = func(ctx context.Context, username, password string) (userID string, err error) {
+	PasswordAuthorizationHandler server.PasswordAuthorizationHandler = func(ctx context.Context, clientID, username, password string) (userID string, err error) {
 		return
 	}
 
-	UserAuthorizeHandler = func(w http.ResponseWriter, r *http.Request) (userID string, err error) {
+	UserAuthorizeHandler server.UserAuthorizationHandler = func(w http.ResponseWriter, r *http.Request) (userID string, err error) {
 		ctx := r.Context().(echo.Context)
 		v := ctx.Session().Get(`uid`)
 		if v == nil {
@@ -34,10 +35,10 @@ var (
 		return
 	}
 
-	InternalErrorHandler = func(err error) (re *errors.Response) {
+	InternalErrorHandler server.InternalErrorHandler = func(err error) (re *errors.Response) {
 		return
 	}
 
-	ResponseErrorHandler = func(re *errors.Response) {
+	ResponseErrorHandler server.ResponseErrorHandler = func(re *errors.Response) {
 	}
 )
