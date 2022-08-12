@@ -25,6 +25,15 @@ func NewServer(config *Config) (*server.Server, error) {
 	if responseError == nil {
 		responseError = ResponseErrorHandler
 	}
-	srv.SetResponseErrorHandler(ResponseErrorHandler)
+	srv.SetResponseErrorHandler(responseError)
+
+	refreshingValidation := config.HandlerInfo.RefreshingValidation
+	if refreshingValidation != nil {
+		srv.SetRefreshingValidationHandler(refreshingValidation)
+	}
+	refreshingScope := config.HandlerInfo.RefreshingScope
+	if refreshingScope != nil {
+		srv.SetRefreshingScopeHandler(refreshingScope)
+	}
 	return srv, nil
 }

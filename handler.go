@@ -14,6 +14,8 @@ type HandlerInfo struct {
 	UserAuthorize         server.UserAuthorizationHandler
 	InternalError         server.InternalErrorHandler
 	ResponseError         server.ResponseErrorHandler
+	RefreshingScope       server.RefreshingScopeHandler
+	RefreshingValidation  server.RefreshingValidationHandler
 }
 
 var (
