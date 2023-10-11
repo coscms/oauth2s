@@ -32,8 +32,7 @@ require (
 	github.com/webx-top/echo v2.26.9+incompatible
 	github.com/webx-top/poolx v0.0.0-20210912044716-5cfa2d58e380 // indirect
 	github.com/webx-top/validation v0.0.3 // indirect
-	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
-	golang.org/x/net v0.7.0
+	golang.org/x/net v0.17.0
 	golang.org/x/oauth2 v0.0.0-20220808172628-8227340efae7
 	google.golang.org/protobuf v1.28.1 // indirect
 )
