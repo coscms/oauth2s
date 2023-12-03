@@ -11,25 +11,20 @@ require (
 	github.com/admpub/go-reuseport v0.0.4 // indirect
 	github.com/admpub/humanize v0.0.0-20190501023926-5f826e92c8ca // indirect
 	github.com/admpub/log v1.3.6 // indirect
-	github.com/admpub/oauth2-redis/v4 v4.1.3
-	github.com/admpub/oauth2/v4 v4.0.1
+	github.com/admpub/oauth2-redis/v4 v4.1.4
+	github.com/admpub/oauth2/v4 v4.0.2
 	github.com/admpub/realip v0.0.0-20210421084339-374cf5df122d // indirect
 	github.com/admpub/timeago v1.2.1 // indirect
 	github.com/francoispqt/gojay v1.2.13 // indirect
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/google/uuid v1.4.0 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/markbates/goth v1.78.0
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mrjones/oauth v0.0.0-20190623134757-126b35219450 // indirect
 	github.com/smartwalle/crypto4go v1.0.3
-	github.com/tidwall/btree v1.7.0 // indirect
-	github.com/tidwall/buntdb v1.3.0 // indirect
-	github.com/tidwall/gjson v1.17.0 // indirect
-	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/webx-top/captcha v0.1.0 // indirect
 	github.com/webx-top/com v1.2.10
 	github.com/webx-top/echo v2.42.9+incompatible
@@ -39,5 +34,4 @@ require (
 	golang.org/x/net v0.19.0
 	golang.org/x/oauth2 v0.15.0
 	golang.org/x/sync v0.5.0 // indirect
-	google.golang.org/appengine v1.6.8 // indirect
 )
