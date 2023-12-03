@@ -8,12 +8,12 @@ func NewServer(config *Config) (*server.Server, error) {
 	srv := server.NewServer(server.NewConfig(), config.Manager())
 	passwordAuthorization := config.HandlerInfo.PasswordAuthorization
 	if passwordAuthorization == nil {
-		passwordAuthorization = PasswordAuthorizationHandler
+		passwordAuthorization = passwordAuthorizationHandler
 	}
 	srv.SetPasswordAuthorizationHandler(passwordAuthorization)
 	userAuthorize := config.HandlerInfo.UserAuthorize
 	if userAuthorize == nil {
-		userAuthorize = UserAuthorizeHandler
+		userAuthorize = userAuthorizeHandler
 	}
 	srv.SetUserAuthorizationHandler(userAuthorize)
 	internalError := config.HandlerInfo.InternalError

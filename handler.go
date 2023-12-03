@@ -21,19 +21,13 @@ type HandlerInfo struct {
 var (
 	RequestFormDataCacheKey = `oauth2RequestForm`
 
-	PasswordAuthorizationHandler server.PasswordAuthorizationHandler = func(ctx context.Context, clientID, username, password string) (userID string, err error) {
+	passwordAuthorizationHandler server.PasswordAuthorizationHandler = func(ctx context.Context, clientID, username, password string) (userID string, err error) {
+		err = echo.ErrNotImplemented
 		return
 	}
 
-	UserAuthorizeHandler server.UserAuthorizationHandler = func(w http.ResponseWriter, r *http.Request) (userID string, err error) {
-		ctx := r.Context().(echo.Context)
-		v := ctx.Session().Get(`uid`)
-		if v == nil {
-			ctx.Session().Set(RequestFormDataCacheKey, ctx.Forms())
-			err = ctx.Redirect(`/oauth2/login`)
-			return
-		}
-		userID = v.(string)
+	userAuthorizeHandler server.UserAuthorizationHandler = func(w http.ResponseWriter, r *http.Request) (userID string, err error) {
+		err = echo.ErrNotImplemented
 		return
 	}
 
