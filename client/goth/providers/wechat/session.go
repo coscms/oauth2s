@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/markbates/goth"
+	"github.com/admpub/goth"
 	"github.com/webx-top/echo"
 )
 

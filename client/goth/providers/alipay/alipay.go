@@ -16,7 +16,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/markbates/goth"
+	"github.com/admpub/goth"
 	"github.com/smartwalle/crypto4go"
 
 	"github.com/coscms/oauth2s/client/goth/oauth2"
@@ -290,12 +290,12 @@ func newConfig(provider *Provider, authURL, tokenURL string, scopes []string) *o
 	return oauth2.NewConfig(c)
 }
 
-//RefreshToken refresh token is not provided by QQ
+// RefreshToken refresh token is not provided by QQ
 func (p *Provider) RefreshToken(refreshToken string) (*oauth2x.Token, error) {
 	return nil, errors.New("Refresh token is not provided by alipay")
 }
 
-//RefreshTokenAvailable refresh token is not provided by QQ
+// RefreshTokenAvailable refresh token is not provided by QQ
 func (p *Provider) RefreshTokenAvailable() bool {
 	return false
 }

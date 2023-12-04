@@ -12,8 +12,8 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/admpub/goth"
 	"github.com/coscms/oauth2s/client/goth/oauth2"
-	"github.com/markbates/goth"
 	oauth2x "golang.org/x/oauth2"
 )
 
@@ -223,12 +223,12 @@ func newConfig(provider *Provider, authURL, tokenURL string, scopes []string) *o
 	return c
 }
 
-//RefreshToken refresh token is not provided by QQ
+// RefreshToken refresh token is not provided by QQ
 func (p *Provider) RefreshToken(refreshToken string) (*oauth2x.Token, error) {
 	return nil, errors.New("Refresh token is not provided by QQ")
 }
 
-//RefreshTokenAvailable refresh token is not provided by QQ
+// RefreshTokenAvailable refresh token is not provided by QQ
 func (p *Provider) RefreshTokenAvailable() bool {
 	return false
 }

@@ -159,7 +159,7 @@ func RetrieveToken(ctx context.Context, callback func(req *http.Request), tokenU
 		}
 	}
 	if lifetime > 0 {
-		token.Expiry = time.Now().Local().Add(time.Duration(lifetime) * time.Second)
+		token.Expiry = time.Now().Add(time.Duration(lifetime) * time.Second)
 	}
 	// Don't overwrite `RefreshToken` with an empty value
 	// if this was a token refreshing request.

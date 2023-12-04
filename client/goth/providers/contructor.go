@@ -1,7 +1,7 @@
 package providers
 
 import (
-	"github.com/markbates/goth"
+	"github.com/admpub/goth"
 
 	"github.com/webx-top/echo/handler/oauth2"
 

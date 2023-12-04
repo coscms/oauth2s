@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/admpub/goth"
 	"github.com/coscms/oauth2s/client/goth/oauth2"
-	"github.com/markbates/goth"
 )
 
 // Session stores data during the auth process with QQ.
