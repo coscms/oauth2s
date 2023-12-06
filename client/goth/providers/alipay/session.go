@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/admpub/goth"
-	"github.com/coscms/oauth2s/client/goth/oauth2"
+	"golang.org/x/oauth2"
 )
 
 // Session stores data during the auth process with QQ.
@@ -33,17 +33,30 @@ func (s Session) GetAuthURL() (string, error) {
 // documentation https://opendocs.alipay.com/apis/api_9/alipay.system.oauth.token
 func (s *Session) Authorize(provider goth.Provider, params goth.Params) (string, error) {
 	p := provider.(*Provider)
-	urlParams := url.Values{
+	urlParams, err := p.urlParams(``, url.Values{
 		"grant_type":   {"authorization_code"},
 		"code":         {params.Get("auth_code")},
-		"redirect_uri": oauth2.CondVal(p.CallbackURL),
-	}
-	var err error
-	urlParams, err = p.urlParams(``, urlParams, nil, `auth_user`)
+		"redirect_uri": {p.CallbackURL},
+	}, nil, `auth_user`)
 	if err != nil {
 		return ``, err
 	}
-	token, err := p.config.Exchange(goth.ContextForClient(p.Client()), urlParams)
+	var options []oauth2.AuthCodeOption
+	if len(p.CallbackURL) > 0 {
+		options = append(options, oauth2.SetAuthURLParam(`redirect_uri`, p.CallbackURL))
+	}
+	/*
+		if len(p.config.ClientID) > 0 {
+			options = append(options, oauth2.SetAuthURLParam("client_id", c.config.ClientID))
+		}
+		if len(p.config.ClientSecret) > 0 {
+			options = append(options, oauth2.SetAuthURLParam("client_secret", c.config.ClientSecret))
+		}
+	*/
+	for k, v := range urlParams {
+		options = append(options, oauth2.SetAuthURLParam(k, v[0]))
+	}
+	token, err := p.config.Exchange(goth.ContextForClient(p.Client()), urlParams.Get(`code`), options...)
 	if err != nil {
 		return "", err
 	}
@@ -53,8 +66,10 @@ func (s *Session) Authorize(provider goth.Provider, params goth.Params) (string,
 	s.AccessToken = token.AccessToken
 	s.RefreshToken = token.RefreshToken
 	s.Expiry = token.Expiry
-	resp := token.Raw.GetStore(`alipay_system_oauth_token_response`)
-	s.OpenID = resp.String(`user_id`)
+	resp, ok := token.Extra(`alipay_system_oauth_token_response`).(map[string]interface{})
+	if ok {
+		s.OpenID, _ = resp[`user_id`].(string)
+	}
 	return s.AccessToken, nil
 }
 

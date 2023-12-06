@@ -8,13 +8,13 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 
 	"github.com/admpub/goth"
-	"github.com/coscms/oauth2s/client/goth/oauth2"
-	oauth2x "golang.org/x/oauth2"
+	"golang.org/x/oauth2"
+
+	oauth2c "github.com/coscms/oauth2s/client/goth/oauth2"
 )
 
 // These vars define the Authentication, Token, and API URLS for GitHub. If
@@ -39,7 +39,7 @@ func NewCustomisedURL(clientKey, secret, callbackURL, authURL, tokenURL, profile
 		ClientKey:    clientKey,
 		Secret:       secret,
 		CallbackURL:  callbackURL,
-		HTTPClient:   oauth2.DefaultClient,
+		HTTPClient:   oauth2c.DefaultClient,
 		providerName: "qq",
 		profileURL:   profileURL,
 		meURL:        meURL,
@@ -57,7 +57,7 @@ type Provider struct {
 	Secret       string
 	CallbackURL  string
 	HTTPClient   *http.Client
-	config       *oauth2x.Config
+	config       *oauth2.Config
 	providerName string
 	profileURL   string
 	meURL        string
@@ -122,7 +122,7 @@ func (p *Provider) FetchUser(session goth.Session) (goth.User, error) {
 		return user, fmt.Errorf("QQ API responded with a %d trying to fetch user information", response.StatusCode)
 	}
 
-	bits, err := ioutil.ReadAll(response.Body)
+	bits, err := io.ReadAll(response.Body)
 	if err != nil {
 		return user, err
 	}
@@ -180,7 +180,7 @@ func getOpenID(p *Provider, sess *Session) error {
 	if response.StatusCode != http.StatusOK {
 		return fmt.Errorf("QQ API responded with a %d trying to fetch user openid", response.StatusCode)
 	}
-	b, err := ioutil.ReadAll(response.Body)
+	b, err := io.ReadAll(response.Body)
 	if err != nil {
 		return err
 	}
@@ -204,12 +204,12 @@ func getOpenID(p *Provider, sess *Session) error {
 	return err
 }
 
-func newConfig(provider *Provider, authURL, tokenURL string, scopes []string) *oauth2x.Config {
-	c := &oauth2x.Config{
+func newConfig(provider *Provider, authURL, tokenURL string, scopes []string) *oauth2.Config {
+	c := &oauth2.Config{
 		ClientID:     provider.ClientKey,
 		ClientSecret: provider.Secret,
 		RedirectURL:  provider.CallbackURL,
-		Endpoint: oauth2x.Endpoint{
+		Endpoint: oauth2.Endpoint{
 			AuthURL:  authURL,
 			TokenURL: tokenURL,
 		},
@@ -224,7 +224,7 @@ func newConfig(provider *Provider, authURL, tokenURL string, scopes []string) *o
 }
 
 // RefreshToken refresh token is not provided by QQ
-func (p *Provider) RefreshToken(refreshToken string) (*oauth2x.Token, error) {
+func (p *Provider) RefreshToken(refreshToken string) (*oauth2.Token, error) {
 	return nil, errors.New("Refresh token is not provided by QQ")
 }
 

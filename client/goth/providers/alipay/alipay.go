@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -19,8 +18,8 @@ import (
 	"github.com/admpub/goth"
 	"github.com/smartwalle/crypto4go"
 
-	"github.com/coscms/oauth2s/client/goth/oauth2"
-	oauth2x "golang.org/x/oauth2"
+	oauth2c "github.com/coscms/oauth2s/client/goth/oauth2"
+	"golang.org/x/oauth2"
 )
 
 // These vars define the Authentication, Token, and API URLS for GitHub. If
@@ -54,7 +53,7 @@ func NewCustomisedURL(clientKey, privateKey, callbackURL, authURL string, apiURL
 		ClientKey:    clientKey,
 		Secret:       privateKey,
 		CallbackURL:  callbackURL,
-		HTTPClient:   oauth2.DefaultClient,
+		HTTPClient:   oauth2c.DefaultClient,
 		providerName: "alipay",
 		profileURL:   apiURL,
 	}
@@ -202,7 +201,7 @@ func (p *Provider) FetchUser(session goth.Session) (goth.User, error) {
 		return user, fmt.Errorf("Alipay API responded with a %d trying to fetch user information", response.StatusCode)
 	}
 
-	bits, err := ioutil.ReadAll(response.Body)
+	bits, err := io.ReadAll(response.Body)
 	if err != nil {
 		return user, err
 	}
@@ -272,11 +271,11 @@ func userFromReader(reader io.Reader, user *goth.User) error {
 }
 
 func newConfig(provider *Provider, authURL, tokenURL string, scopes []string) *oauth2.Config {
-	c := &oauth2x.Config{
+	c := &oauth2.Config{
 		ClientID:     provider.ClientKey,
 		ClientSecret: provider.Secret,
 		RedirectURL:  provider.CallbackURL,
-		Endpoint: oauth2x.Endpoint{
+		Endpoint: oauth2.Endpoint{
 			AuthURL:  authURL,
 			TokenURL: tokenURL,
 		},
@@ -287,11 +286,11 @@ func newConfig(provider *Provider, authURL, tokenURL string, scopes []string) *o
 		c.Scopes = append(c.Scopes, scope)
 	}
 
-	return oauth2.NewConfig(c)
+	return c
 }
 
 // RefreshToken refresh token is not provided by QQ
-func (p *Provider) RefreshToken(refreshToken string) (*oauth2x.Token, error) {
+func (p *Provider) RefreshToken(refreshToken string) (*oauth2.Token, error) {
 	return nil, errors.New("Refresh token is not provided by alipay")
 }
 
