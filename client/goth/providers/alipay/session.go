@@ -41,18 +41,7 @@ func (s *Session) Authorize(provider goth.Provider, params goth.Params) (string,
 	if err != nil {
 		return ``, err
 	}
-	var options []oauth2.AuthCodeOption
-	if len(p.CallbackURL) > 0 {
-		options = append(options, oauth2.SetAuthURLParam(`redirect_uri`, p.CallbackURL))
-	}
-	/*
-		if len(p.config.ClientID) > 0 {
-			options = append(options, oauth2.SetAuthURLParam("client_id", c.config.ClientID))
-		}
-		if len(p.config.ClientSecret) > 0 {
-			options = append(options, oauth2.SetAuthURLParam("client_secret", c.config.ClientSecret))
-		}
-	*/
+	options := make([]oauth2.AuthCodeOption, 0, len(urlParams))
 	for k, v := range urlParams {
 		options = append(options, oauth2.SetAuthURLParam(k, v[0]))
 	}
