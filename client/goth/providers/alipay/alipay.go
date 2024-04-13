@@ -16,7 +16,6 @@ import (
 	"time"
 
 	"github.com/admpub/goth"
-	"github.com/smartwalle/crypto4go"
 
 	oauth2c "github.com/coscms/oauth2s/client/goth/oauth2"
 	"golang.org/x/oauth2"
@@ -84,9 +83,9 @@ func (p *Provider) Name() string {
 }
 
 func (p *Provider) parsePrivateKey() error {
-	priKey, err := crypto4go.ParsePKCS1PrivateKey(crypto4go.FormatPKCS1PrivateKey(p.Secret))
+	priKey, err := ParsePKCS1PrivateKey(FormatPKCS1PrivateKey(p.Secret))
 	if err != nil {
-		priKey, err = crypto4go.ParsePKCS8PrivateKey(crypto4go.FormatPKCS8PrivateKey(p.Secret))
+		priKey, err = ParsePKCS8PrivateKey(FormatPKCS8PrivateKey(p.Secret))
 		if err != nil {
 			return err
 		}

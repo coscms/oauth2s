@@ -7,8 +7,6 @@ import (
 	"net/url"
 	"sort"
 	"strings"
-
-	"github.com/smartwalle/crypto4go"
 )
 
 func SignRSA2(param url.Values, privateKey *rsa.PrivateKey) (string, error) {
@@ -23,7 +21,7 @@ func SignRSAx(param url.Values, privateKey *rsa.PrivateKey, hash crypto.Hash) (s
 	if param == nil {
 		param = make(url.Values, 0)
 	}
-	pList := make([]string, 0, 0)
+	pList := make([]string, 0, len(param))
 	for key := range param {
 		var value = strings.TrimSpace(param.Get(key))
 		if len(value) > 0 {
@@ -32,7 +30,7 @@ func SignRSAx(param url.Values, privateKey *rsa.PrivateKey, hash crypto.Hash) (s
 	}
 	sort.Strings(pList)
 	src := strings.Join(pList, "&")
-	sig, err := crypto4go.RSASignWithKey([]byte(src), privateKey, hash)
+	sig, err := RSASignWithKey([]byte(src), privateKey, hash)
 	if err != nil {
 		return "", err
 	}
@@ -45,7 +43,7 @@ func VerifySign(val url.Values, key []byte) error {
 		return err
 	}
 	signType := val.Get("sign_type")
-	keys := make([]string, 0, 0)
+	keys := make([]string, 0, len(val))
 	for key := range val {
 		if key == `sign` || key == `sign_type` || key == `alipay_cert_sn` {
 			continue
@@ -53,15 +51,15 @@ func VerifySign(val url.Values, key []byte) error {
 		keys = append(keys, key)
 	}
 	sort.Strings(keys)
-	pList := make([]string, 0, 0)
+	pList := make([]string, 0, len(keys))
 	for _, key := range keys {
 		pList = append(pList, key+"="+val.Get(key))
 	}
 	s := strings.Join(pList, "&")
 	if signType == `RSA` {
-		err = crypto4go.RSAVerify([]byte(s), sign, key, crypto.SHA1)
+		err = RSAVerify([]byte(s), sign, key, crypto.SHA1)
 	} else {
-		err = crypto4go.RSAVerify([]byte(s), sign, key, crypto.SHA256)
+		err = RSAVerify([]byte(s), sign, key, crypto.SHA256)
 	}
 	return err
 }
@@ -73,9 +71,9 @@ func VerifyResponseData(data []byte, signType, sign string, key []byte) error {
 	}
 
 	if signType == `RSA` {
-		err = crypto4go.RSAVerify(data, signBytes, key, crypto.SHA1)
+		err = RSAVerify(data, signBytes, key, crypto.SHA1)
 	} else {
-		err = crypto4go.RSAVerify(data, signBytes, key, crypto.SHA256)
+		err = RSAVerify(data, signBytes, key, crypto.SHA256)
 	}
 	return err
 }
