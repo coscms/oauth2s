@@ -1,16 +1,18 @@
 module github.com/coscms/oauth2s
 
-go 1.23
+go 1.23.0
+
+toolchain go1.24.0
 
 require (
 	github.com/admpub/goth v0.0.4
 	github.com/admpub/oauth2-redis/v4 v4.1.4
-	github.com/admpub/oauth2/v4 v4.0.2
+	github.com/admpub/oauth2/v4 v4.0.3
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/webx-top/com v1.3.20
 	github.com/webx-top/echo v1.14.5
-	golang.org/x/oauth2 v0.25.0
+	golang.org/x/oauth2 v0.28.0
 )
 
 require (

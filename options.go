@@ -4,7 +4,7 @@ import (
 	"github.com/admpub/oauth2/v4"
 	"github.com/admpub/oauth2/v4/manage"
 	"github.com/admpub/oauth2/v4/server"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func NewConfig() *Config {
